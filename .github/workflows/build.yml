@@ -1,0 +1,27 @@
+name: Build Tweak
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Theos
+      run: |
+        git clone --recursive https://github.com/theos/theos.git $GITHUB_WORKSPACE/theos
+        echo "THEOS=$GITHUB_WORKSPACE/theos" >> $GITHUB_ENV
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y fakeroot curl dpkg
+    - name: Build Tweak
+      run: |
+        cd $GITHUB_WORKSPACE
+        make
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: tweak-files
+        path: |
+          *.deb
+          *.dylib
+          objects/
